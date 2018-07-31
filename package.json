@@ -1,0 +1,79 @@
+{
+  "name": "wyliodrin-lab-device",
+  "version": "1.0.0",
+  "description": "wyliodrin lab software device controller",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wyliodrin/wyliodrin-lab-device.git"
+  },
+  "keywords": [
+    "iot",
+    "raspberry",
+    "pi",
+    "wyliodrin"
+  ],
+  "author": "Wyliodrin",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Wyliodrin/wyliodrin-lab-device/issues"
+  },
+  "homepage": "https://github.com/Wyliodrin/wyliodrin-lab-device#readme",
+  "devDependencies": {
+    "grunt": "^1.0.3",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-eslint": "^21.0.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "script"
+    },
+    "plugins": [],
+    "extends": [
+      "eslint:recommended"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        "tab",
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "no-console": [
+        "warn"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+      "require-await": [
+        "error"
+      ]
+    }
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^6.0.0",
+    "ip": "^1.1.5",
+    "lcd": "^2.0.3",
+    "lodash": "^4.17.10",
+    "onoff": "^3.2.1"
+  }
+}
