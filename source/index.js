@@ -5,19 +5,21 @@ const lcd = require('./lib/printFunctions');
 const board = require('./lib/gpiolib');
 const info = require('./lib/info');
 
+require ('./lib/talkToServer');
+
 console.log(process.env);
 
 async function run () {
 	await info.updateInfo();
 	let obj1 = {
 		id: 1,
-		line1: 'adresa ip',
+		line1: 'Device IP',
 		line2: info.information.ip
 	};
 	let obj2 = {
 		id: 2,
-		line1: 'id-ul placii',
-		line2: info.information.id
+		line1: 'Device ID',
+		line2: info.information.boardId
 	};
 	lcd.push(obj1);
 	lcd.push(obj2);

@@ -1,10 +1,102 @@
 const { exec } = require('child_process');
 let _ = require('lodash');
 let Ip = require('ip');
+const fs = require ('fs-extra');
+var spawnPrivileged = require ('./execute').spawnPrivileged;
+var spawn = require ('./execute').spawn;
+var path = require ('path');
+
+var serverInfo = {
+
+};
+
 let information = {
-	id: '',
+	boardId: '',
 	ip: ''
 };
+
+function readServerInfo ()
+{
+	let cmdline = fs.readFileSync ('/proc/cmdline').toString ();
+	let matchServer = cmdline.match (/server=([^ $\n\r]+)/);
+	// Server IP
+	if (matchServer)
+	{
+		serverInfo.server = matchServer[1];
+		console.log ('Server: '+serverInfo.server);
+	}
+	else
+	{
+		serverInfo.error = 'Server IP not found';
+	}
+
+	let matchNfsServer = cmdline.match (/nfsroot=([^:]+)/);
+	// Server IP
+	if (matchNfsServer)
+	{
+		serverInfo.nfsServer = matchNfsServer[1];
+		console.log ('NFS Server: '+serverInfo.nfsServer);
+	}
+
+	let matchNfsPath = cmdline.match (/nfsroot=[^:]+:([^ $\n\r]+)/);
+	// Server IP
+	if (matchNfsPath)
+	{
+		serverInfo.nfsPath = path.dirname(path.dirname(path.dirname(matchNfsPath[1])));
+		console.log ('NFS Path: '+serverInfo.nfsPath);
+	}
+
+	
+	// Course ID
+	let matchCourse = cmdline.match (/courseId=([A-Za-z0-9\-_]+)/);
+	if (matchCourse)
+	{
+		serverInfo.courseId = matchCourse[1];
+		console.log ('Course ID: '+serverInfo.courseId);
+	}
+
+	// User ID
+	let matchUser = cmdline.match (/userId=([A-Za-z0-9\-_]+)/);
+	if (matchUser)
+	{
+		serverInfo.userId = matchUser[1];
+		console.log ('User ID: '+serverInfo.userId);
+	}
+}
+
+async function isMountedPi ()
+{
+	let mount = false;
+	try
+	{
+		let run = await spawn ('bash', ['-c', 'mount | grep /home/pi']);
+		if (run.exitCode === 0)
+		{
+			mount = true;
+		}
+	}
+	catch (e)
+	{
+		console.error ('ERROR: is mounted pi '+e.message);
+	}
+	return mount;
+}
+
+async function mountPi ()
+{
+	if (information.userId && !await isMountedPi())
+	{
+		console.log ('mount pi');
+		try
+		{
+			await spawnPrivileged ('mount', ['-t', 'nfs', serverInfo.nfsServer+':'+serverInfo.nfsPath+'/home/'+serverInfo.userId, '/home/pi']);
+		}
+		catch (e)
+		{
+			console.error ('ERROR: mount pi '+e.message);
+		}
+	}
+}
 
 function getIp() {
 	return Ip.address();
@@ -35,21 +127,26 @@ function getId() {
 		});
 	});
 }
+
 async function updateInfo() {
 
-	information.ip  = getIp();
-	information.id = await getId();
-
+	information.ip = getIp();
+	if (!information.boardId) information.boardId = await getId();
+	information.userId = serverInfo.userId;
+	information.courseId = serverInfo.courseId;
 }
 
 async function update() {
 	await updateInfo();
+	await mountPi ();
 	setTimeout(update, 5000);
 }
 
+readServerInfo ();
 update();
 
 module.exports = {
 	updateInfo: updateInfo,
-	information: information
+	information: information,
+	serverInfo: serverInfo
 };

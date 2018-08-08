@@ -1,20 +1,20 @@
-const { execSync } = require('child_process');
+const spawnPrivileged = require ('./execute').spawnPrivileged;
 
-function shutDown(simulate = false) {
+async function shutDown(simulate = false) {
 
 	console.log('MA INCHIIID <3');
 	if (!simulate) {
-		execSync('sudo poweroff');
+		await spawnPrivileged ('poweroff');
 	} else {
 		console.log('shut-down simulation');
 	}
 	//TODO catch error
 }
 
-function reboot(simulate = false) {
+async function reboot(simulate = false) {
 	console.log('MA RESTAREEZ <3');
 	if (!simulate) {
-		execSync('sudo reboot');
+		await spawnPrivileged('reboot');
 	} else {
 		console.log('reboot simulation');
 	}

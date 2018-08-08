@@ -25,36 +25,40 @@ async function sendStatus (status)
 		let whoAmI = _.assign ({}, info.information, {
 			status
 		});
-		return axios.post(serverURL (), whoAmI);
+		return await axios.post(serverURL (), whoAmI);
 	}
 	catch (e)
 	{
 		console.error ('ERROR: send status '+e.message);
+		return null;
 	}
 }
 
 async function getCommand() {
 	try {
 		let response = await sendStatus ('online');
-		switch (response.data.com) {
+		if (response)
+		{
+			switch (response.data.command) {
 
-			case 'reboot':
-				console.log('Ma rebootez');
-				await sendStatus ('reboot');
-				pi.reboot(SIMULATE);
-				break;
-			case 'powerOff':
-				console.log('Ma inchid');
-				await sendStatus ('offline');
-				pi.shutDown(SIMULATE);
-				break;
-			default:
-				console.log('Nu am primit comanda valida');
-				console.log(response.data);
+				case 'reboot':
+					console.log('Ma rebootez');
+					await sendStatus ('reboot');
+					pi.reboot(SIMULATE);
+					break;
+				case 'poweroff':
+					console.log('Ma inchid');
+					await sendStatus ('offline');
+					pi.shutDown(SIMULATE);
+					break;
+				default:
+					console.log('Nu am primit comanda valida');
+					console.log(response.data);
+			}
 		}
 
 	} catch (error) {
-		console.error(error);
+		console.error('ERROR: server '+error.message);
 	}
 	setTimeout (getCommand, 10000);
 }
