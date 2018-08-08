@@ -3,7 +3,7 @@ const info = require('./info');
 const pi = require('./raspiCommands');
 const _ = require ('lodash');
 
-
+const SERVER = process.env.WYLIODRIN_LAB_SERVER;
 const SIMULATE = process.env.WYLIODRIN_LAB_SIMULATE_COMMANDS || false;
 
 /*
@@ -12,40 +12,19 @@ const SIMULATE = process.env.WYLIODRIN_LAB_SIMULATE_COMMANDS || false;
 }
 */
 
-function serverURL ()
-{
-	return info.serverInfo.server+'/api/v1/remote/exchange';
-}
-
-async function sendStatus (status)
-{
-	try
-	{
-		await info.updateInfo();
-		let whoAmI = _.assign ({}, info.information, {
-			status
-		});
-		return axios.post(serverURL (), whoAmI);
-	}
-	catch (e)
-	{
-		console.error ('ERROR: send status '+e.message);
-	}
-}
-
 async function getCommand() {
 	try {
-		let response = await sendStatus ('online');
+		await info.updateInfo();
+		let whoAmI = _.assign ({}, info.information, {status: 'online'});
+		let response = await axios.post(SERVER, whoAmI);
 		switch (response.data.com) {
 
 			case 'reboot':
 				console.log('Ma rebootez');
-				await sendStatus ('reboot');
 				pi.reboot(SIMULATE);
 				break;
 			case 'powerOff':
 				console.log('Ma inchid');
-				await sendStatus ('offline');
 				pi.shutDown(SIMULATE);
 				break;
 			default:
@@ -59,4 +38,4 @@ async function getCommand() {
 	setTimeout (getCommand, 10000);
 }
 
-getCommand ();
+getCommand();
