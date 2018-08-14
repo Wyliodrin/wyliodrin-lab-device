@@ -21,9 +21,9 @@ async function run () {
 		line1: 'Device ID',
 		line2: info.information.boardId
 	};
-	lcd.push(obj1);
-	lcd.push(obj2);
-	lcd.displayCurrent();
+	lcd.replace(obj1);
+	lcd.replace(obj2);
+	setTimeout (run, 3000);
 }
 
 run ();

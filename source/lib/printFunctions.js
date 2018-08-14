@@ -18,6 +18,22 @@ function doesIdExist(id) {
 	}
 }
 
+function findObjectById (id)
+{
+	let object = null;
+	let i = _.findIndex (array, function (o)
+	{
+		if (o.id === id) return true;
+		else return false;
+	});
+	if (i>=0) 
+	{
+		array[i].index = i;
+		object = array[i];
+	}
+	return object;
+}
+
 async function writeObjectOnLcd(index) {
 
 	await lcd.init();
@@ -26,6 +42,39 @@ async function writeObjectOnLcd(index) {
 	await lcd.write(array[index].line2, 0, 1);
 
 
+}
+
+function replace (object)
+{
+	if (!_.isUndefined (object))
+	{
+		let arrayObject = findObjectById (object.id);
+		if (arrayObject)
+		{
+			if (arrayObject.line1 !== object.line1 || arrayObject.line2 !== object.line2)
+			{
+				arrayObject.line1 = object.line1;
+				arrayObject.line2 = object.line2;
+				if (arrayObject.index === index)
+				{
+					displayCurrent ();
+				}
+			}
+			else
+			{
+				console.log ('Object is the same');
+			}
+		}
+		else
+		{
+			array.push (object);
+			if (array.length === 1) displayCurrent ();
+		}
+	}
+	else
+	{
+		console.log ('Object has not id');
+	}
 }
 
 function pop() {
@@ -122,6 +171,7 @@ module.exports = {
 	removeByIndex: removeByIndex,
 	push: push,
 	pop: pop,
+	replace: replace,
 	displayOnce: displayOnce,
 	displayPrevious: displayPrevious,
 	displayNext: displayNext,
