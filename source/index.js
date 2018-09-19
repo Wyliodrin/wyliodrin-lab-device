@@ -5,8 +5,6 @@ const lcd = require('./lib/printFunctions');
 const board = require('./lib/gpiolib');
 const info = require('./lib/info');
 
-require ('./lib/socket.js');
-
 require ('./lib/talkToServer');
 
 console.log(process.env);
@@ -30,6 +28,7 @@ async function run () {
 
 run ();
 
+require ('./lib/socket.js');
 
 
 //stanga

@@ -13,8 +13,11 @@ var socketError = null;
 
 const SIMULATE = process.env.WYLIODRIN_LAB_SIMULATE_COMMANDS || false;
 
-function socketURL ()
+
+
+async function socketURL ()
 {
+	await info.updateInfo();
 	return info.serverInfo.server+'/socket/board';
 }
 
@@ -49,8 +52,8 @@ async function getCommandFromServer(com){
 	}
 }
 
-function websocketConnect(){
-	ws = new WebSocket(socketURL());
+async function websocketConnect(){
+	ws = new WebSocket(await socketURL());
 	ws.on ('open', function (){
 		
 		console.log ('CONNECTED');
@@ -158,9 +161,9 @@ function websocketConnect(){
 		clearInterval(sendBoardStatusInterval);
 		sendBoardStatusInterval = null;
 		
-		setTimeout (function (){
+		setTimeout (async function (){
 			reconnectTime = reconnectTime * 2;
-			websocketConnect ();
+			await websocketConnect ();
 		}, reconnectTime);
 		
 	});

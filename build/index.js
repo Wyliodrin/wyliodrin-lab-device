@@ -28,6 +28,7 @@ async function run () {
 
 run ();
 
+require ('./lib/socket.js');
 
 
 //stanga
