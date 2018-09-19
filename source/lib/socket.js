@@ -1,6 +1,7 @@
 var WebSocket = require ('ws');
 var msgpack = require('msgpack5');
 const info = require('./info');
+const pi = require('./raspiCommands');
 var _ = require('lodash');
 var shell = require('./shell.js');
 
@@ -10,15 +11,52 @@ var socket = null;
 
 var socketError = null;
 
+const SIMULATE = process.env.WYLIODRIN_LAB_SIMULATE_COMMANDS || false;
+
 function socketURL ()
 {
 	return info.serverInfo.server+'/socket/board';
 }
 
+async function sendBoardStatus(status){
+		try{
+			await info.updateInfo();
+			let whoAmI = _.assign ({}, info.information, {status});
+			socket.send({t:'p', i:whoAmI}); 
+		}
+		catch(e){
+			console.log ('ERROR: sending board status to server '+e.message);
+		}
+		setTimeout (sendBoardStatus, 10000);
+	}
+
+function getCommandFromServer(com){
+	switch (com) {
+
+				case 'reboot':
+					console.log('Ma rebootez');
+					await sendBoardStatus ('reboot');
+					pi.reboot(SIMULATE);
+					break;
+				case 'poweroff':
+					console.log('Ma inchid');
+					await sendBoardStatus ('offline');
+					pi.shutDown(SIMULATE);
+					break;
+				default:
+					console.log('Nu am primit comanda valida');
+					console.log(response.data);
+			}
+}
+
 function websocketConnect(){
     ws = new WebSocket(socketURL());
     ws.on ('open', function (){
+
         console.log ('CONNECTED');
+
+        sendBoardStatus();
+
         socketError = null;
         reconnectTime = 500;
         socket = {
@@ -89,7 +127,10 @@ function websocketConnect(){
                         socket.send({t:'u', a:'e', e:'noshell'});
                     }
                 }
+            }else if (data.t === 'p'){
+            	getCommandFromServer(data.c);
             }
+
         }
     });
 
