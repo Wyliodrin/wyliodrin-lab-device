@@ -91,7 +91,7 @@ async function websocketConnect(){
 	
 	ws.on ('message', async function (message){
 		let data = msgpack.decode (message);
-		if (data.t === 'u'){
+		if (data.t === 'b'){
 			//user shell
 			if (data.a === 'o'){
 				//open
@@ -105,7 +105,7 @@ async function websocketConnect(){
 					shell.kill();
 				}
 				else{
-					socket.send({t:'u', a:'e', e:'noshell'});
+					socket.send({t:'b', a:'e', e:'noshell'});
 				}
 			}
 			else if (data.a === 'k'){
@@ -116,7 +116,7 @@ async function websocketConnect(){
 					}
 				}
 				else{
-					socket.send({t:'u', a:'e', e:'noshell'});
+					socket.send({t:'b', a:'e', e:'noshell'});
 				}
 			}
 			else if (data.a === 'r'){
@@ -125,7 +125,7 @@ async function websocketConnect(){
 					shell.resize(data.c, data.d);
 				}
 				else{
-					socket.send({t:'u', a:'e', e:'noshell'});
+					socket.send({t:'b', a:'e', e:'noshell'});
 				}
 			}
 		} else if (data.t === 'p'){
