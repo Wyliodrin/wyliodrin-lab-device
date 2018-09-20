@@ -1,5 +1,5 @@
 var WebSocket = require ('ws');
-var msgpack = require('msgpack5');
+var msgpack = require('msgpack5')();
 const info = require('./info');
 const pi = require('./raspiCommands');
 var _ = require('lodash');
@@ -90,52 +90,48 @@ async function websocketConnect(){
 	
 	
 	ws.on ('message', async function (message){
-		if (!_.isObject (message))
-		{
-			let data = msgpack.decode (message);
-			if (data.t === 'u'){
-				//user shell
-				if (data.a === 'o'){
-					//open
-					if (!shell.isShell()){
-						shell.openShell(socket);
-					}
+		let data = msgpack.decode (message);
+		if (data.t === 'b'){
+			//user shell
+			if (data.a === 'o'){
+				//open
+				if (!shell.isShell()){
+					shell.openShell(socket);
 				}
-				else if (data.a === 'c'){
-					//close
-					if (shell.isShell()){
-						shell.kill();
-					}
-					else{
-						socket.send({t:'u', a:'e', e:'noshell'});
-					}
-				}
-				else if (data.a === 'k'){
-					//key
-					if (shell.isShell()){
-						if (_.isString(data.c) || _.isBuffer (data.c)){
-							shell.write(data.c);
-						}
-					}
-					else{
-						socket.send({t:'u', a:'e', e:'noshell'});
-					}
-				}
-				else if (data.a === 'r'){
-					//resize
-					if (shell.isShell()){
-						shell.resize(data.c, data.d);
-					}
-					else{
-						socket.send({t:'u', a:'e', e:'noshell'});
-					}
-				}
-			} else if (data.t === 'p'){
-				await getCommandFromServer(data.c);
-				console.log('de');
 			}
-			
+			else if (data.a === 'c'){
+				//close
+				if (shell.isShell()){
+					shell.kill();
+				}
+				else{
+					socket.send({t:'b', a:'e', e:'noshell'});
+				}
+			}
+			else if (data.a === 'k'){
+				//key
+				if (shell.isShell()){
+					if (_.isString(data.c) || _.isBuffer (data.c)){
+						shell.write(data.c);
+					}
+				}
+				else{
+					socket.send({t:'b', a:'e', e:'noshell'});
+				}
+			}
+			else if (data.a === 'r'){
+				//resize
+				if (shell.isShell()){
+					shell.resize(data.c, data.d);
+				}
+				else{
+					socket.send({t:'b', a:'e', e:'noshell'});
+				}
+			}
+		} else if (data.t === 'p'){
+			await getCommandFromServer(data.c);
 		}
+
 	});
 	
 	ws.on ('error', function (error)
@@ -145,7 +141,8 @@ async function websocketConnect(){
 			console.log ('SOCKET '+error.message);
 			socketError = error.message;
 		}
-		socket.close ();
+		if (socket) socket.close ();
+		else ws.close();
 	});
 	
 	ws.on ('close', function ()

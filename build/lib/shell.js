@@ -45,12 +45,12 @@ function openShell (socket, cmd = 'bash', cols = 80, rows = 24)
 		});
 		
 		shell.on('data', function(data) {
-			socket.send ({t:'u', a:'k', b:info.information.boardId, c:data});
+			socket.send ({t:'b', a:'k', b:info.information.boardId, c:data});
 		});
 		
 		shell.on ('exit', function ()
 		{
-			socket.send ({t:'u', a:'c', b:info.information.boardId});
+			socket.send ({t:'b', a:'c', b:info.information.boardId});
 			shell = null;
 		});
 	}
