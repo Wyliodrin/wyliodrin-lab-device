@@ -145,7 +145,8 @@ async function websocketConnect(){
 			console.log ('SOCKET '+error.message);
 			socketError = error.message;
 		}
-		socket.close ();
+		if (socket) socket.close ();
+		else ws.close();
 	});
 	
 	ws.on ('close', function ()
