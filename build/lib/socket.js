@@ -167,3 +167,5 @@ async function websocketConnect(){
 }
 
 websocketConnect();
+
+module.exports.sendBoardStatus = sendBoardStatus;

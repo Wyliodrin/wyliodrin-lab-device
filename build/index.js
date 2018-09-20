@@ -26,7 +26,8 @@ async function run () {
 
 run ();
 
-require ('./lib/socket.js');
+const socket = require ('./lib/socket.js');
+socket.sendBoardStatus('online');
 
 
 //stanga
