@@ -5,8 +5,6 @@ const lcd = require('./lib/printFunctions');
 const board = require('./lib/gpiolib');
 const info = require('./lib/info');
 
-require ('./lib/talkToServer');
-
 console.log(process.env);
 
 async function run () {
