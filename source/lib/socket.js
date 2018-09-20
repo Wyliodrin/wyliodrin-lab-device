@@ -1,5 +1,5 @@
 var WebSocket = require ('ws');
-var msgpack = require('msgpack5');
+var msgpack = require('msgpack5')();
 const info = require('./info');
 const pi = require('./raspiCommands');
 var _ = require('lodash');
