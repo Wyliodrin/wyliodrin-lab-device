@@ -3,14 +3,14 @@ var info = require('./info.js');
 var path = require('path');
 
 var shell = null;
-var runshell = {};
+var runshell = null;
 
 function isShell(projectId){
 	if (projectId === undefined){
 		return (shell !== null);
 	}
 	else{
-		return (runshell[projectId] !== undefined && runshell[projectId] !== null);
+		return (runshell !== null);
 	}
 }
 function kill(projectId){
@@ -22,8 +22,8 @@ function kill(projectId){
 	}
 	else{
 		if (isShell(projectId)){
-			runshell[projectId].kill();
-			runshell[projectId] = null;
+			runshell.kill();
+			runshell = null;
 		}
 	}
 }
@@ -35,7 +35,7 @@ function write(data, projectId){
 	}
 	else{
 		if (isShell(projectId)){
-			runshell[projectId].write(data);
+			runshell.write(data);
 		}
 	}
 }
@@ -89,37 +89,35 @@ function openShell (socket, cmd = 'su', cols = 80, rows = 24)
 
 function openShellRun (socket, cmd, projectId, cols = 80, rows = 24)
 {
-	if (!isShell(projectId))
+	if (isShell(projectId))
 	{
-		
-		runshell[projectId] = pty.spawn(cmd, [path.join('/home/pi/projects', projectId)], {
-			rows,
-			cols,
-			cwd: '/home/pi',
-			env: {
-				
-			}
-		});
-		
-		runshell[projectId].on ('error', function (error)
-		{
-			if (error.message.indexOf ('EIO') === -1)
-			{
-				console.log ('SHELL '+error.message);
-			}
-		});
-		
-		runshell[projectId].on('data', function(data) {
-			socket.send ('b', {t:'s', a:'k', id:info.information.boardId, k:data});
-		});
-		
-		runshell[projectId].on ('exit', function ()
-		{
-			socket.send ('b', {t:'s', a:'c', id:info.information.boardId});
-			runshell[projectId] = null;
-		});
+		kill (projectId);
 	}
-	runshell[projectId].resize (cols, rows);
+		
+	runshell = pty.spawn(cmd, [path.join('/home/pi/projects', projectId, 'main.py')], {
+		rows,
+		cols,
+		cwd: path.join('/home/pi/projects', projectId),
+	});
+	
+	runshell.on ('error', function (error)
+	{
+		if (error.message.indexOf ('EIO') === -1)
+		{
+			console.log ('SHELL '+error.message);
+		}
+	});
+	
+	runshell.on('data', function(data) {
+		socket.send ('b', {t:'r', a:'k', id:info.information.boardId, k:data, pid:projectId});
+	});
+	
+	runshell.on ('exit', function ()
+	{
+		socket.send ('b', {t:'r', a:'c', id:info.information.boardId, pid:projectId});
+		runshell = null;
+	});
+	runshell.resize (cols, rows);
 }
 
 module.exports.openShell = openShell;

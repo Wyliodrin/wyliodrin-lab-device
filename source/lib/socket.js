@@ -145,7 +145,7 @@ async function websocketConnect(){
 						shell.kill(data.pid);
 					}
 					else{
-						socket.send('b' ,{ t: 's', id: data.id, a:'e', err:'noshell', pid:data.pid});
+						socket.send('b' ,{ t: 'r', id: data.id, a:'e', err:'noshell', pid:data.pid});
 					}
 				}
 				else if (data.a === 'k'){
@@ -156,7 +156,7 @@ async function websocketConnect(){
 						}
 					}
 					else{
-						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell', pid:data.pid});
+						socket.send('b' ,{ t:'r', id: data.id, a:'e', err:'noshell', pid:data.pid});
 					}
 				}
 				else if (data.a === 'r'){
@@ -165,8 +165,12 @@ async function websocketConnect(){
 						shell.resize(data.c, data.r, data.pid);
 					}
 					else{
-						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell', pid:data.pid});
+						socket.send('b' ,{ t:'r', id: data.id, a:'e', err:'noshell', pid:data.pid});
 					}
+				}
+				else if (data.a === 's'){
+					//status
+					socket.send('b' ,{ t:'r', id: data.id, a:'s', s:shell.isShell('project')});
 				}
 				
 			}
