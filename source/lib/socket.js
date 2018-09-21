@@ -89,43 +89,46 @@ async function websocketConnect(){
 	
 	
 	
-	ws.on ('message', async function (message){
+	ws.on ('message', async function (message) {
 		let data = msgpack.decode(new Buffer(message, 'base64'));
 		if (data.l === 'b'){
-			//board shell
-			if (data.a === 'o'){
-				//open
-				if (!shell.isShell()){
-					shell.openShell(socket);
-				}
-			}
-			else if (data.a === 'c'){
-				//close
-				if (shell.isShell()){
-					shell.kill();
-				}
-				else{
-					socket.send('b' ,{ a:'e', err:'noshell'});
-				}
-			}
-			else if (data.a === 'k'){
-				//key
-				if (shell.isShell()){
-					if (_.isString(data.t) || _.isBuffer (data.t)){
-						shell.write(data.t);
+			if (data.t === 's')
+			{
+				//board shell
+				if (data.a === 'o'){
+					//open
+					if (!shell.isShell()){
+						shell.openShell(socket);
 					}
 				}
-				else{
-					socket.send('b' ,{ a:'e', err:'noshell'});
+				else if (data.a === 'c'){
+					//close
+					if (shell.isShell()){
+						shell.kill();
+					}
+					else{
+						socket.send('b' ,{ t: 's', id: data.id, a:'e', err:'noshell'});
+					}
 				}
-			}
-			else if (data.a === 'r'){
-				//resize
-				if (shell.isShell()){
-					shell.resize(data.c, data.r);
+				else if (data.a === 'k'){
+					//key
+					if (shell.isShell()){
+						if (_.isString(data.k) || _.isBuffer (data.k)){
+							shell.write(data.k);
+						}
+					}
+					else{
+						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell'});
+					}
 				}
-				else{
-					socket.send('b' ,{ a:'e', err:'noshell'});
+				else if (data.a === 'r'){
+					//resize
+					if (shell.isShell()){
+						shell.resize(data.c, data.r);
+					}
+					else{
+						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell'});
+					}
 				}
 			}
 		} else if (data.l === 'p'){

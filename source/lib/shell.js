@@ -4,7 +4,7 @@ var info = require('./info.js');
 var shell = null;
 
 function isShell(){
-	return (shell === null);
+	return (shell !== null);
 }
 function kill(){
 	if (isShell()){
@@ -23,17 +23,18 @@ function resize(data1, data2){
 	}
 }
 
-function openShell (socket, cmd = 'bash', cols = 80, rows = 24)
+function openShell (socket, cmd = 'su', cols = 80, rows = 24)
 {
 	if (!shell)
 	{
 		
-		shell = pty.spawn(cmd, [], {
+		shell = pty.spawn(cmd, ['-', 'pi'], {
 			rows,
 			cols,
-			HOME: '/home/pi',
-			USER: 'pi',
-			USERNAME: 'pi'
+			cwd: '/home/pi',
+			env: {
+				
+			}
 		});
 		
 		shell.on ('error', function (error)
@@ -45,12 +46,12 @@ function openShell (socket, cmd = 'bash', cols = 80, rows = 24)
 		});
 		
 		shell.on('data', function(data) {
-			socket.send ('b', {a:'k', b:info.information.boardId, t:data});
+			socket.send ('b', {t:'s', a:'k', id:info.information.boardId, k:data});
 		});
 		
 		shell.on ('exit', function ()
 		{
-			socket.send ('b', {a:'c', b:info.information.boardId});
+			socket.send ('b', {t:'s', a:'c', id:info.information.boardId});
 			shell = null;
 		});
 	}
