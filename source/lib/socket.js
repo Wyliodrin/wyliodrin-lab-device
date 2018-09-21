@@ -27,7 +27,7 @@ async function sendBoardStatus(status){
 	try{
 		await info.updateInfo();
 		let whoAmI = _.assign ({}, info.information, {status});
-		socket.send({t:'p', i:whoAmI}); 
+		socket.send('p', {i:whoAmI}); 
 	}
 	catch(e){
 		console.log ('ERROR: sending board status to server '+e.message);
@@ -69,18 +69,18 @@ async function websocketConnect(){
 				}
 				else console.log ('SOCKET_END socket is null');
 			},
-			send: function (data)
+			send: function (label, data)
 			{
 				if (ws)
 				{
-					ws.send (msgpack.encode(data));
+					ws.send(msgpack.encode(_.assign ({l: label}, data)).toString ('base64'));
 				}
 				else console.log ('SOCKET_WRITE socket is null');
 			}
 		};
 		
 		//send token first
-		if (ws) socket.send ({token:info.information.boardId});
+		if (ws) socket.send ('a', {token:info.information.boardId});
 		else console.log ('SOCKET_SEND socket is null');
 		
 		sendBoardStatusInterval = setInterval (sendBoardStatus, 10000);
@@ -90,9 +90,9 @@ async function websocketConnect(){
 	
 	
 	ws.on ('message', async function (message){
-		let data = msgpack.decode (message);
-		if (data.t === 'b'){
-			//user shell
+		let data = msgpack.decode(new Buffer(message, 'base64'));
+		if (data.l === 'b'){
+			//board shell
 			if (data.a === 'o'){
 				//open
 				if (!shell.isShell()){
@@ -105,30 +105,30 @@ async function websocketConnect(){
 					shell.kill();
 				}
 				else{
-					socket.send({t:'b', a:'e', e:'noshell'});
+					socket.send('b' ,{ a:'e', err:'noshell'});
 				}
 			}
 			else if (data.a === 'k'){
 				//key
 				if (shell.isShell()){
-					if (_.isString(data.c) || _.isBuffer (data.c)){
-						shell.write(data.c);
+					if (_.isString(data.t) || _.isBuffer (data.t)){
+						shell.write(data.t);
 					}
 				}
 				else{
-					socket.send({t:'b', a:'e', e:'noshell'});
+					socket.send('b' ,{ a:'e', err:'noshell'});
 				}
 			}
 			else if (data.a === 'r'){
 				//resize
 				if (shell.isShell()){
-					shell.resize(data.c, data.d);
+					shell.resize(data.c, data.r);
 				}
 				else{
-					socket.send({t:'b', a:'e', e:'noshell'});
+					socket.send('b' ,{ a:'e', err:'noshell'});
 				}
 			}
-		} else if (data.t === 'p'){
+		} else if (data.l === 'p'){
 			await getCommandFromServer(data.c);
 		}
 
