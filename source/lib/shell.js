@@ -89,33 +89,33 @@ function openShell (socket, cmd = 'su', cols = 80, rows = 24)
 
 function openShellRun (socket, cmd, projectId, cols = 80, rows = 24)
 {
-	if (!isShell(projectId))
-	{
-		
-		runshell[projectId] = pty.spawn(cmd, [path.join('/home/pi/projects', projectId, 'main.py')], {
-			rows,
-			cols,
-			cwd: path.join('/home/pi/projects', projectId),
-		});
-		
-		runshell[projectId].on ('error', function (error)
-		{
-			if (error.message.indexOf ('EIO') === -1)
-			{
-				console.log ('SHELL '+error.message);
-			}
-		});
-		
-		runshell[projectId].on('data', function(data) {
-			socket.send ('b', {t:'s', a:'k', id:info.information.boardId, k:data, pid:projectId});
-		});
-		
-		runshell[projectId].on ('exit', function ()
-		{
-			socket.send ('b', {t:'s', a:'c', id:info.information.boardId, pid:projectId});
-			runshell[projectId] = null;
-		});
+	if (isShell(projectId)){
+		kill(projectId);
 	}
+		
+	runshell[projectId] = pty.spawn(cmd, [path.join('/home/pi/projects', projectId, 'main.py')], {
+		rows,
+		cols,
+		cwd: path.join('/home/pi/projects', projectId),
+	});
+	
+	runshell[projectId].on ('error', function (error)
+	{
+		if (error.message.indexOf ('EIO') === -1)
+		{
+			console.log ('SHELL '+error.message);
+		}
+	});
+	
+	runshell[projectId].on('data', function(data) {
+		socket.send ('b', {t:'s', a:'k', id:info.information.boardId, k:data, pid:projectId});
+	});
+	
+	runshell[projectId].on ('exit', function ()
+	{
+		socket.send ('b', {t:'s', a:'c', id:info.information.boardId, pid:projectId});
+		runshell[projectId] = null;
+	});
 	runshell[projectId].resize (cols, rows);
 }
 
