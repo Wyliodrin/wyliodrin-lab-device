@@ -131,6 +131,45 @@ async function websocketConnect(){
 					}
 				}
 			}
+			else if (data.t === 'r'){
+				//run project
+				if (data.a === 'o'){
+					//open
+					if (!shell.isShell(data.pid)){
+						shell.openShellRun(socket, 'python', data.pid);
+					}
+				}
+				else if (data.a === 'c'){
+					//close
+					if (shell.isShell(data.pid)){
+						shell.kill(data.pid);
+					}
+					else{
+						socket.send('b' ,{ t: 's', id: data.id, a:'e', err:'noshell', pid:data.pid});
+					}
+				}
+				else if (data.a === 'k'){
+					//key
+					if (shell.isShell(data.pid)){
+						if (_.isString(data.k) || _.isBuffer (data.k)){
+							shell.write(data.k,data.pid);
+						}
+					}
+					else{
+						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell', pid:data.pid});
+					}
+				}
+				else if (data.a === 'r'){
+					//resize
+					if (shell.isShell(data.pid)){
+						shell.resize(data.c, data.r, data.pid);
+					}
+					else{
+						socket.send('b' ,{ t:'s', id: data.id, a:'e', err:'noshell', pid:data.pid});
+					}
+				}
+				
+			}
 		} else if (data.l === 'p'){
 			await getCommandFromServer(data.c);
 		}
