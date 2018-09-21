@@ -89,9 +89,8 @@ function openShell (socket, cmd = 'su', cols = 80, rows = 24)
 
 function openShellRun (socket, cmd, projectId, cols = 80, rows = 24)
 {
-	if (isShell(projectId))
-	{
-		kill (projectId);
+	if (isShell(projectId)){
+		kill(projectId);
 	}
 		
 	runshell = pty.spawn(cmd, [path.join('/home/pi/projects', projectId, 'main.py')], {
@@ -109,12 +108,12 @@ function openShellRun (socket, cmd, projectId, cols = 80, rows = 24)
 	});
 	
 	runshell.on('data', function(data) {
-		socket.send ('b', {t:'r', a:'k', id:info.information.boardId, k:data, pid:projectId});
+		socket.send ('b', {t:'s', a:'k', id:info.information.boardId, k:data, pid:projectId});
 	});
 	
 	runshell.on ('exit', function ()
 	{
-		socket.send ('b', {t:'r', a:'c', id:info.information.boardId, pid:projectId});
+		socket.send ('b', {t:'s', a:'c', id:info.information.boardId, pid:projectId});
 		runshell = null;
 	});
 	runshell.resize (cols, rows);
