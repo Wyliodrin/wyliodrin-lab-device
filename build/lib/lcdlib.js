@@ -1,4 +1,5 @@
 const Lcd = require('lcd');
+const shell = require ('./shell');
 
 const RS = 12;
 const E = 25;
@@ -19,16 +20,26 @@ lcd.on('ready', function() {
 function write(string, col = 0, row = 0) {
 	return new Promise(function(resolve) {
 		//TODO catch err
-		lcd.setCursor(col, row);
-		lcd.print(string, function() {
-			resolve();
-		});
+		if (!shell.isShell ('project'))
+		{
+			lcd.setCursor(col, row);
+			lcd.print(string, function() {
+				resolve();
+			});
+		}
+		else
+		{
+			resolve ();
+		}
 	});
 
 }
 
 function clear() {
-	lcd.clear();
+	if (!shell.isShell ('project'))
+	{
+		lcd.clear();
+	}
 }
 
 function init() {

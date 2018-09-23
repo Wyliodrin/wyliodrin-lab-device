@@ -62,7 +62,7 @@ function replace (object)
 			}
 			else
 			{
-				console.log ('Object is the same');
+				// console.log ('Object is the same');
 			}
 		}
 		else

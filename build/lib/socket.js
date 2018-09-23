@@ -26,7 +26,7 @@ var sendBoardStatusInterval = null;
 async function sendBoardStatus(status){
 	try{
 		await info.updateInfo();
-		let whoAmI = _.assign ({}, info.information, {status});
+		let whoAmI = _.assign ({}, info.information, {status}, {project: shell.isShell ('project')});
 		socket.send('p', {i:whoAmI}); 
 	}
 	catch(e){

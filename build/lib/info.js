@@ -30,6 +30,18 @@ function readServerInfo ()
 		serverInfo.error = 'Server IP not found';
 	}
 
+	let matchServerName = cmdline.match (/servername=([^ $\n\r]+)/);
+	// Server Name
+	if (matchServerName)
+	{
+		serverInfo.servername = matchServerName[1];
+		console.log ('Server: '+serverInfo.servername);
+	}
+	else
+	{
+		serverInfo.error = 'Server IP not found';
+	}
+
 	let matchNfsServer = cmdline.match (/nfsroot=([^:]+)/);
 	// Server IP
 	if (matchNfsServer)

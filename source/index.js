@@ -4,23 +4,33 @@ require('dotenv').config();
 const lcd = require('./lib/printFunctions');
 const board = require('./lib/gpiolib');
 const info = require('./lib/info');
+const shell = require ('./lib/shell');
 
 console.log(process.env);
 
 async function run () {
 	await info.updateInfo();
-	let obj1 = {
-		id: 1,
-		line1: 'Device IP',
-		line2: info.information.ip
-	};
+	if (!info.serverInfo.userId)
+	{
+		let obj1 = {
+			id: 1,
+			line1: 'Go to',
+			line2: info.serverInfo.servername+'/'+info.information.boardId
+		};
+		lcd.replace(obj1);
+	}
 	let obj2 = {
 		id: 2,
-		line1: 'Device ID',
+		line1: 'Board IP',
+		line2: info.information.ip
+	};
+	lcd.replace(obj2);
+	let obj3 = {
+		id: 3,
+		line1: 'Board ID',
 		line2: info.information.boardId
 	};
-	lcd.replace(obj1);
-	lcd.replace(obj2);
+	lcd.replace(obj3);
 	setTimeout (run, 3000);
 }
 
@@ -32,9 +42,12 @@ socket.sendBoardStatus('online');
 
 //stanga
 board.button2.watch(async function(err, value) {
-	board.ledGreen.writeSync(value);
-	if (value) {
-		await lcd.displayPrevious();
+	if (!shell.isShell('project'))
+	{
+		board.ledGreen.writeSync(value);
+		if (value) {
+			await lcd.displayPrevious();
+		}
 	}
 });
 
@@ -42,9 +55,11 @@ board.button2.watch(async function(err, value) {
 
 //dreapta
 board.button1.watch(async function(err, value) {
-	board.ledRed.writeSync(value);
-	if (value) {
-		await lcd.displayNext();
+	if (!shell.isShell ('project'))
+	{
+		board.ledRed.writeSync(value);
+		if (value) {
+			await lcd.displayNext();
+		}
 	}
-
 });
