@@ -35,8 +35,8 @@ function write(string, col = 0, row = 0) {
 
 }
 
-function clear() {
-	if (!shell.isShell ('project'))
+function clear(force = false) {
+	if (!shell.isShell ('project') || force === true)
 	{
 		lcd.clear();
 	}
