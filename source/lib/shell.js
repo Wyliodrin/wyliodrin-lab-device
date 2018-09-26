@@ -1,3 +1,4 @@
+var link = require ('./socket');
 var pty = require ('pty.js');
 var info = require('./info.js');
 var path = require('path');
@@ -115,8 +116,10 @@ function openShellRun (socket, cmd, projectId, cols = 80, rows = 24)
 	{
 		socket.send ('b', {t:'r', a:'c', id:info.information.boardId, pid:projectId});
 		runshell = null;
+		link.sendBoardStatus ();
 	});
 	runshell.resize (cols, rows);
+	link.sendBoardStatus ();
 }
 
 module.exports.openShell = openShell;
