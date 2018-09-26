@@ -76,7 +76,6 @@ function readServerInfo ()
 		serverInfo.userId = matchUser[1];
 		console.log ('User ID: '+serverInfo.userId);
 	}
-	if (!information.serial) updateSerial ();
 }
 
 async function isMountedPi ()
@@ -103,8 +102,8 @@ async function updateSerial ()
 	{
 		let url = serverInfo.servername;
 		if (url.indexOf ('http')!==0) url = 'https://'+url;
-		let data = await axios.get (url+'/board/'+information.boardId);
-		if (data && data.err === 0 && data.serial) information.serial = data.serial;
+		let response = await axios.get (url+'/serial/'+information.boardId);
+		if (response && response.data.err === 0 && response.data.serial) information.serial = response.data.serial;
 	}
 	catch (e)
 	{
@@ -163,6 +162,7 @@ async function updateInfo() {
 
 	information.ip = getIp();
 	if (!information.boardId) information.boardId = await getId();
+	if (!information.serial) await updateSerial ();
 	information.userId = serverInfo.userId;
 	information.courseId = serverInfo.courseId;
 }
