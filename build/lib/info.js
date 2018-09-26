@@ -5,6 +5,7 @@ const fs = require ('fs-extra');
 var spawnPrivileged = require ('./execute').spawnPrivileged;
 var spawn = require ('./execute').spawn;
 var path = require ('path');
+var axios = require ('axios');
 
 var serverInfo = {
 
@@ -39,7 +40,8 @@ function readServerInfo ()
 	}
 	else
 	{
-		serverInfo.error = 'Server IP not found';
+		serverInfo.servername = 'wlab.run';
+		
 	}
 
 	let matchNfsServer = cmdline.match (/nfsroot=([^:]+)/);
@@ -74,6 +76,7 @@ function readServerInfo ()
 		serverInfo.userId = matchUser[1];
 		console.log ('User ID: '+serverInfo.userId);
 	}
+	if (!information.serial) updateSerial ();
 }
 
 async function isMountedPi ()
@@ -92,6 +95,21 @@ async function isMountedPi ()
 		console.error ('ERROR: is mounted pi '+e.message);
 	}
 	return mount;
+}
+
+function updateSerial ()
+{
+	try
+	{
+		let url = information.servername;
+		if (url.indexOf ('http')!==0) url = 'https://'+url;
+		let data = axios.get (url+'/board/'+information.boardId);
+		if (data && data.err ===0 && data.serial) information.serial = data.serial;
+	}
+	catch (e)
+	{
+		console.error ('Unable to update serial: '+e.message);
+	}
 }
 
 async function mountPi ()
@@ -141,6 +159,7 @@ function getId() {
 }
 
 async function updateInfo() {
+
 
 	information.ip = getIp();
 	if (!information.boardId) information.boardId = await getId();

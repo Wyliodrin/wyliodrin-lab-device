@@ -10,12 +10,12 @@ console.log(process.env);
 
 async function run () {
 	await info.updateInfo();
-	if (!info.serverInfo.userId)
+	if (!info.serverInfo.userId && info.information.serial !== undefined)
 	{
 		let obj1 = {
 			id: 1,
-			line1: 'Go to',
-			line2: info.serverInfo.servername+'/'+info.information.boardId
+			line1: 'Start at',
+			line2: info.serverInfo.servername+'/'+info.information.serial
 		};
 		lcd.replace(obj1);
 	}
