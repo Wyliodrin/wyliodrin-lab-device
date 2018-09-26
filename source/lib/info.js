@@ -101,10 +101,10 @@ function updateSerial ()
 {
 	try
 	{
-		let url = information.servername;
+		let url = serverInfo.servername;
 		if (url.indexOf ('http')!==0) url = 'https://'+url;
 		let data = axios.get (url+'/board/'+information.boardId);
-		if (data && data.err ===0 && data.serial) information.serial = data.serial;
+		if (data && data.err === 0 && data.serial) information.serial = data.serial;
 	}
 	catch (e)
 	{
