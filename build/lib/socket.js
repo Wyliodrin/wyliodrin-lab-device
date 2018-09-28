@@ -136,7 +136,7 @@ async function websocketConnect(){
 				if (data.a === 'o'){
 					//open
 					if (!shell.isShell(data.pid)){
-						shell.openShellRun(socket, 'python', data.pid);
+						shell.openShellRun(socket, 'python3', data.pid);
 					}
 				}
 				else if (data.a === 'c'){
