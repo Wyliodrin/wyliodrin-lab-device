@@ -1,5 +1,6 @@
 const Lcd = require('lcd');
 const shell = require ('./shell');
+var _ = require ('lodash');
 
 const RS = 12;
 const E = 25;
@@ -50,9 +51,9 @@ function init() {
 }
 
 
-module.exports = {
+module.exports = _.assign (module.exports, {
 	blink: lcd.blink,
 	write: write,
 	clear: clear,
 	init: init
-};
+});

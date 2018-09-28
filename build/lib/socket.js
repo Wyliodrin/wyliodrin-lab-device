@@ -25,6 +25,7 @@ var sendBoardStatusInterval = null;
 
 async function sendBoardStatus(status){
 	try{
+		if (!status) status = 'online';
 		await info.updateInfo();
 		let whoAmI = _.assign ({}, info.information, {status}, {project: shell.isShell ('project')});
 		socket.send('p', {i:whoAmI}); 
@@ -34,16 +35,16 @@ async function sendBoardStatus(status){
 	}
 }
 
-async function getCommandFromServer(com){
+function getCommandFromServer(com){
 	switch (com) {
 		case 'reboot':
 			console.log('Ma rebootez');
-			await sendBoardStatus ('reboot');
+			// await sendBoardStatus ('reboot');
 			pi.reboot(SIMULATE);
 			break;
 		case 'poweroff':
 			console.log('Ma inchid');
-			await sendBoardStatus ('offline');
+			// await sendBoardStatus ('offline');
 			pi.shutDown(SIMULATE);
 			break;
 		default:
@@ -89,7 +90,7 @@ async function websocketConnect(){
 	
 	
 	
-	ws.on ('message', async function (message) {
+	ws.on ('message', function (message) {
 		let data = msgpack.decode(new Buffer(message, 'base64'));
 		if (data.l === 'b'){
 			if (data.t === 's')
@@ -175,7 +176,7 @@ async function websocketConnect(){
 				
 			}
 		} else if (data.l === 'p'){
-			await getCommandFromServer(data.c);
+			getCommandFromServer(data.c);
 		}
 
 	});
